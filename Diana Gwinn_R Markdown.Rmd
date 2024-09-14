@@ -1,0 +1,70 @@
+---
+title: "The Basic R Markdown"
+author: "Diana Gwinn"
+date: "2024-09-04"
+output: html_document
+---
+
+# Data description
+
+This data will show the salaries of each employee
+
+- **Variable  1:** Rank- Professor's rank either assistant professor, associate professor, or professor
+- **Variable 2:** Discipline- Type of department the professor works in, either applied or theoretical
+- **Variable 3:** Yrs since PhD- Number of years since the professor has the obtained their PhD
+- **Variable 4:** Yrs of service- Number of years the professor has served the department and/or university
+- **Variable 5:** Sex- Professor's sex of either male or female
+- **Variable 6:** Salary- Professor's nine-month salary (USD)
+
+## Data wrangling
+
+Please follow the steps to wrangle the data.
+
+- **STEP 1:**  *Load the packages*
+```{r packages, include=TRUE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(knitr)
+```
+
+- **STEP 2:** *Set the working directory*
+```{r directory, echo=FALSE}
+getwd()
+setwd("C:/Users/diana/OneDrive/Documents/Module 3")
+```
+
+- **STEP 3:** 
+  - *Load the dataset* 
+  - *Dismiss the first three rows*
+```{r csv, echo=TRUE, results=FALSE}
+Salaries <- read_csv("Salaries.csv")
+```
+
+- **STEP 4:** 
+  - *Select() first*
+  - *Then rename()*
+  - *Finally filter()*
+```{r select, echo=FALSE, results=FALSE, warning=FALSE, message=FALSE }
+Salaries_new <- Salaries %>%
+  select(rank,discipline,sex,salary) %>% #Select columns of “rank”, “discipline”, “sex”, “salary”
+  filter(!is.na(salary)) %>% #Filter the rows where “salary” is not missing value.
+  group_by(rank, discipline, sex) %>%  #Group based on the required columns (“rank”,”discipline”, “sex”) and have the tally count of the rows.
+  summarise(count = n ()) #Get the tally count of the observation
+
+```
+
+- **STEP 5:** 
+  - *Spread() for a wider table*
+```{r wide, echo=FALSE, results=TRUE }
+wide <- Salaries_new %>%
+  spread(key = sex, value = count, convert = FALSE, drop = TRUE, sep = NULL, fill=FALSE)
+```
+
+- **STEP 6:** 
+  - *Gather() for a longer table*
+```{r long, echo=FALSE, results=TRUE  }
+long <- wide %>%
+  gather(key = "sex", value = "n", Female,Male, na.rm=TRUE, convert = FALSE, factor_key = FALSE)
+View(long) 
+```
+
